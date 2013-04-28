@@ -13,7 +13,7 @@ feedparser._HTMLSanitizer.acceptable_elements = feedparser._HTMLSanitizer.accept
 db=MySQLdb.connect(host="localhost",user=config.get('Database', 'username'),passwd=config.get('Database', 'password'),db="micro_rss", charset='utf8')
 cur = db.cursor()
 
-opml_file = '/home/ch1r0n/django_dev/micro_rss/subscriptions.xml'
+opml_file = 'subscriptions.xml'
 o=opml.parse(opml_file)
 
 print 'reading ' + o.title + ' ...'
