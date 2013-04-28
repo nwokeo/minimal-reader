@@ -1,0 +1,94 @@
+{% load staticfiles %}
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+	<title>mnml rdr</title>
+	<!-- http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+	<script src={% static "reader/jquery.cookie.js" %} type="text/javascript"></script>
+	<script src={% static "reader/jquery.treeview.js" %} type="text/javascript"></script>
+	<script type="text/javascript" src={% static "reader/demo.js" %}></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'reader/style.css' %}" />
+</head>
+
+<div id='head'>
+  <div class='column last span-24'>
+      <h3 class='header'><a href='/reader/'>mnml rdr</a></h3> 
+<!-- <img src="{% static "reader/681661618-refresh.png" %}" alt="My image"/> -->
+  </div>
+</div>
+<div id='body'>
+
+
+ <div id='nav-cont'>
+  <div id='nav'>
+  
+<!--  id="red" class="treeview-red" -->
+   <ul id="browser" class="filetree">
+
+    {% for label in feeds_labels %}
+	  
+       <li> 
+	<span> {{ label.label }} </span>
+         <ul>
+          {% for feed in label.feeds.all %}
+          <div id='feed'>
+           <li class="file">
+             <span>
+                <a href="/reader/{{ feed.id }}">{{ feed.title }}</a>
+             </span>
+           </li>
+           </div>
+          {% endfor %}
+         </ul>
+	</li>
+       
+    {% endfor %}
+    </ul>
+   </div>
+ </div>
+
+
+
+ <div id='articles'>
+  {% for article in articles %}
+
+  {% if forloop.first == True %}
+       <form action="/reader/update/{{article.feed.id}}/" method="POST">
+        <!-- first! -->
+  {% endif %}
+
+  {% if article.unread == True %}
+  {% csrf_token %}
+  {{ formset.management_form }}
+   <div id={{article.id}} class='article-detail'>	
+        <script>
+	 $('#{{article.id}}').click(function(){
+               var $checkbox = $(this).find("input[name*='unread']");
+               $checkbox.attr('checked', !$checkbox.attr('checked'));
+         }); 
+        </script>
+
+	 <h3><a href="{{ article.link }}">{{ article.title }}</a></h3>
+	 <p class='pub_date'>Add Date: {{ article.update_date }}</p> 
+         {% for form in formset.forms %}
+            {% for hid in form.hidden_fields %}
+                {% if hid.value == article.id %}
+                {{ form }}
+                {% endif %}
+            {% endfor %}
+         {% endfor %}
+         <input type="submit" value="submit">
+         <br/><br/>
+	 {{article.content | safe }} 
+   </div>
+         {% endif %}	
+        {% endfor %}
+  </form>
+ </div>
+</div>
+
+<div id='footer'>
+  <div class='column last span-24'>
+      <p></p>
+  </div>
+</div>

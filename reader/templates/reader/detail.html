@@ -1,0 +1,146 @@
+<html>
+{% load staticfiles %}
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+	<title>mnml rdr</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'reader/style.css' %}" />
+
+
+</head>
+<body>
+<script>
+// Execute this after the site is loaded.
+$(function() {
+    // Find list items representing folders and
+    // style them accordingly.  Also, turn them
+    // into links that can expand/collapse the
+    // tree leaf.
+    $('li > ul').each(function(i) {
+        // Find this list's parent list item.
+        var parent_li = $(this).parent('li');
+
+        // Style the list item as folder.
+        parent_li.addClass('folder');
+
+        // Temporarily remove the list from the
+        // parent list item, wrap the remaining
+        // text in an anchor, then reattach it.
+        var sub_ul = $(this).remove();
+        parent_li.wrapInner('<a/>').find('a').click(function() {
+            // Make the anchor toggle the leaf display.
+            sub_ul.toggle();
+        });
+        parent_li.append(sub_ul);
+    });
+
+    // Hide all lists except the outermost.
+    $('ul ul').hide();
+});
+</script>
+
+<div id='head'>
+  <!-- div class='column last span-24' -->
+
+	  <div class='column span-8 header-l'>  <!-- 'column l' --> 
+	     <p class='header'><a href='/reader/'>mnml rdr </a></p> 
+	  </div> 
+	  
+         <div class='column span-8 header-m'>
+             <p class='header-m'><a href='{{feed.homepage}}'>{{feed.title}}</a></p>
+          </div>
+
+	  <div class='column last span-8 header-r'> <!-- 'column r' --> 
+	     <p class='header-r'><a href='/reader'>reading list</a> | <a href='/admin'>admin</a></p>
+	  </div> 
+  <!-- /div -->
+</div>
+
+
+<!-- <img src="{% static "reader/681661618-refresh.png" %}" alt="My image"/> -->
+
+
+<div id='body'>
+ <div id='nav-cont'>
+  <div id='nav'>
+
+<a class="feed" style="display: block" href="http://stackoverflow.com">[placeholder]</a>  
+   <ul id="navtree_ul">
+
+    {% for label in feeds_labels %}
+	  
+       <li> 
+	<span class="feed" style="display: block"> {{ label.label }} </span>
+         <ul>
+          {% for feed in label.feeds.all %}
+	   {% if feed.unread_count > 0 %}
+          <div class='feed'>
+           <li class="feed">
+             <span>
+                <a style="display: block" href="/reader/{{ feed.id }}">{{ feed.title }} ({{feed.unread_count}})</a>
+             </span>
+           </li>
+           </div>
+	   {% endif %}
+          {% endfor %}
+         </ul>
+	</li>
+       
+    {% endfor %}
+    </ul>
+   </div>
+ </div>
+
+
+
+ <div id='articles'>
+{% if articles %}
+  {% for article in articles %}
+
+  {% if forloop.first == True %}
+       <form action="/reader/update/{{article.feed.id}}/" method="POST">
+        <!-- first! -->
+  {% endif %}
+
+<!-- only unread articles are coming from view -->
+<!-- if article.unread == True -->
+  {% csrf_token %}
+  {{ formset.management_form }}
+   <div id={{article.id}} class='article-detail'>	
+        <script>
+	 $('#{{article.id}}').click(function(){
+               var $checkbox = $(this).find("input[name*='unread']");
+               $checkbox.attr('checked', !$checkbox.attr('checked'));
+         }); 
+        </script>
+
+	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
+	 <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p> 
+         {% for form in formset.forms %}
+            {% for hid in form.hidden_fields %}
+                {% if hid.value == article.id %}
+                {{ form }}
+                {% endif %}
+            {% endfor %}
+         {% endfor %}
+         <input type="submit" value="submit">
+         <br/><br/>
+	 {{article.content | safe }} 
+   </div>
+<!--  endif -->	
+        {% endfor %}
+  </form>
+  {% else %} 
+    <p>No unread articles.</p> 
+  {% endif %} 
+</div>
+</div>
+
+<div id='footer'>
+  <div class='column last span-24'>
+      <p></p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'reader/style_tree.css' %}" />
+
+<ol class="tree">
+    {% for label in labels %}
+      <li>
+        <label for="folder1">{{ label.label }}</label> <input type="checkbox" id="{{ label.label }}" />
+       <ol>       
+         {% for feed in label.feeds.all %}
+         <li class="file"> 
+           {{ feed.title }}
+         </li>
+       {% endfor %}
+       </ol>
+    {% endfor %}
+    </li>
+<ol>

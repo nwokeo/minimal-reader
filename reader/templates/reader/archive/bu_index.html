@@ -1,0 +1,39 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'reader/style.css' %}" />
+
+<div id='head'> 
+  <div class='column last span-24'> 
+      <p>Header - Index</p> 
+  </div> 
+</div> 
+<div id='body'> 
+  <div id='nav'> 
+  
+   {% if latest_feed_list %}
+    {% for feed in latest_feed_list %}
+      <div id='feed'>
+        <a href="{{ feed.link }}">{{ feed.title }}</a>
+        <br/>
+        Read: <a href="/reader/{{ feed.id }}">{{ feed.title }}</a>
+        <br/>
+        Feed ID: {{ feed.id }} <br/>
+        Feed Title: {{ feed.title }} <br/>
+        Feed Link: {{ feed.link }} <br/>
+        <br/>
+      </div>
+
+        {% endfor %}
+    {% else %}
+        <p>No feeds are available.</p>
+    {% endif %}
+
+  </div> 
+  <div id='articles'> 
+      <p>Article 1</p> 
+  </div> 
+</div> 
+<div id='footer'> 
+  <div class='column last span-24'> 
+      <p>Footer</p> 
+  </div> 
+</div> 

@@ -1,0 +1,25 @@
+.column { float: left; margin-right: 10px; }
+.last { margin-right: 0; }
+.span-24 { width: 100%; margin: 0; }
+#head { width: 100%; margin: 0 auto;} 
+#body { width: 100%; margin: 0 auto; } 
+#nav { float: left; margin-right: 10px; width: 25%; } 
+#articles {float: left; margin-right: 10px; margin-right: 0; width: 73%; }
+#article-detail {float: left; margin-right: 10px; margin-right: 0; width: 100%; } 
+#footer { width: 100%; margin: 0 auto; } 
+#feed { margin: 0 auto; border:0px; }
+
+div
+{
+  border: 2px solid;
+  /* overflow:scroll; */
+}
+
+#feed:hover
+{
+  background-color:gray;
+}
+
+li a {
+    color: green;
+}

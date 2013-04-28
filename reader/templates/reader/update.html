@@ -1,0 +1,17 @@
+{% load staticfiles %}
+ <div id='articles'>
+
+{% for f in formset.management_form %}
+
+{{f}}
+
+{% for form in formset.forms %}
+
+    <form action="/reader/update/141/" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit" value="submit">
+    </form>
+{% endfor %}
+
+{% endfor %}
