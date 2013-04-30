@@ -3,4 +3,5 @@
 *.pyc
 local_settings.py
 subscriptions.xml
-*.cfg
+reader.cfg
+test_*
