@@ -47,8 +47,9 @@ $(function() {
 	  </div> 
 	  
          <div class='column span-8 header-m'>
-	   {% if feed %}
-             <p class='header-m'><a href='{{feed.homepage}}'>{{feed.title}}</a></p>
+	   {% if feed %} 
+<!-- can i use vars dynamically inside a static var?? -->
+             <p class='header-m'><a href='{{feed.homepage}}'><img src="{% static "reader/favicon/7.ico" %}" height="16" width="16"/> {{feed.title}}</a></p>
 	    {% else %}
 	     <p class='header-m'><a href='{{feed.homepage}}'></a></p>
 	{% endif %}

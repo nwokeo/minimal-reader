@@ -1,16 +1,15 @@
 import opml
 import MySQLdb
+import ConfigParser
 
-import feedparser
+config = ConfigParser.RawConfigParser()
+config.read('reader.cfg')
 
-####todo####
-#1. rmove labels from my sql, re-run feed block to remove dups
-#2. complete else logic: uncategorized feeds. 
-
-feedparser._HTMLSanitizer.acceptable_elements = feedparser._HTMLSanitizer.acceptable_elements + ['object', 'embed','iframe']
+#import feedparser
+#feedparser._HTMLSanitizer.acceptable_elements = feedparser._HTMLSanitizer.acceptable_elements + ['object', 'embed','iframe']
 #import bs4
 
-db=MySQLdb.connect(host="localhost",user=config.get('Database', 'username'),passwd=config.get('Database', 'password'),db="micro_rss", charset='utf8')
+db=MySQLdb.connect(host="localhost",user=config.get('Database', 'username'),passwd=config.get('Database', 'password'),db="test_rss", charset='utf8')
 cur = db.cursor()
 
 opml_file = 'subscriptions.xml'
@@ -80,4 +79,8 @@ for item in o:
             cur.execute('insert into reader_label_feeds (label_id, feed_id) select l.id, f.id from reader_label l, reader_feed_base f where f.link="' + item.xmlUrl + '" and l.label="uncategorized"')
             cur.execute('commit')
 
-#update articles
+#add favicon
+def add_favicons(self):
+    cur.execute('SELECT * FROM reader_feed_base')
+    for feed in cur.fetchall():
+        print feed.homepage
