@@ -168,7 +168,7 @@ ul {
     padding: 0;
 }
 li {
-    background-image: url(icons/bullet_feed.png);
+/*    background-image: url(iconsbullet_feed.png); */
     background-position: 0 1px;
     background-repeat: no-repeat;
     padding-left: 20px;

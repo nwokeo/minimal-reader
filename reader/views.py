@@ -28,15 +28,16 @@ def index(request):
 def magic(request):
     #feed_list=[]
     vars=request.GET
-    amount=int(vars.get('a',20))
-    sortby=vars.get('s','d')
-
-    if sortby=='r': #random
-	articles = sortrandom(amount, sortby)
-    elif sortby=='d': #descending
-        articles = Article.objects.filter(unread__exact='True').order_by('-update_date', 'add_date')[:amount]
-    elif sortby=='a': #ascending
-        articles = Article.objects.filter(unread__exact='True').order_by('update_date', 'add_date')[:amount]
+    amount=int(vars.get('amt',20))
+    sortby=vars.get('sort','desc')
+    cat=vars.get('cat','uncategorized')
+    #feed=vars.get('feed','all')
+    if sortby=='rand': #random
+	articles = sortrandom(amount, sortby, cat)
+    elif sortby=='desc': #descending
+        articles = Article.objects.filter(unread__exact='True', feed__label__label=cat).order_by('-update_date', 'add_date')[:amount]
+    elif sortby=='asc': #ascending
+        articles = Article.objects.filter(unread__exact='True', feed__label__label=cat).order_by('update_date', 'add_date')[:amount]
     else:  #default
         pass    
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
@@ -49,13 +50,14 @@ def magic(request):
         context_instance = RequestContext(request),
     )
 
-def sortrandom(amount, sortby):
+def sortrandom(amount, sortby, cat):
     feed_list=[]
-    high=Article.objects.filter(unread__exact='True').aggregate(Max('id'))['id__max']
-    low=Article.objects.filter(unread__exact='True').aggregate(Min('id'))['id__min']
+    high=Article.objects.filter(unread__exact='True', feed__label__label=cat).aggregate(Max('id'))['id__max']
+    low=Article.objects.filter(unread__exact='True', feed__label__label=cat).aggregate(Min('id'))['id__min']
     for x in range(amount):
         feed_list.append(randrange(low, high))
-    return Article.objects.filter(id__in=feed_list, unread__exact='True').order_by('-update_date', '-add_date')
+    return Article.objects.filter(id__in=feed_list, unread__exact='True') #feed__label__label=cat
+    #random by category disabled for now
 
 #show specific feed
 def detail(request, feed_id_pk):

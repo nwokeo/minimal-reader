@@ -49,7 +49,11 @@ $(function() {
          <div class='column span-8 header-m'>
 	   {% if feed %} 
 <!-- can i use vars dynamically inside a static var?? -->
-             <p class='header-m'><a href='{{feed.homepage}}'><img src="{% static "reader/favicon/7.ico" %}" height="16" width="16"/> {{feed.title}}</a></p>
+             <p class='header-m'><a href='{{feed.homepage}}'>
+                 {% if feed.favico %}
+                 <img src="/static/reader/favicon/{{feed.favico}}" height="16" width="16"/>
+                 {% endif %}
+	      {{feed.title}}</a></p>
 	    {% else %}
 	     <p class='header-m'><a href='{{feed.homepage}}'></a></p>
 	{% endif %}
@@ -70,7 +74,7 @@ $(function() {
   <div id='nav'>
     <a class="feed nav_link" style="display: block" href='/admin'>admin</a>
     <a class="feed nav_link" style="display: block" href='/reader'>reading list</a>
-    <a class="feed nav_link" style="display: block" href="http://192.168.1.101:8000/reader/magic?a=20&s=r">magic</a> 
+    <a class="feed nav_link" style="display: block" href="http://192.168.1.101:8000/reader/magic?amt=20&sort=rand">magic</a> 
      <br/>
    <ul id="navtree_ul">
 
@@ -84,7 +88,14 @@ $(function() {
           <div class='feed'>
            <li class="feed">
              <span>
-                <a style="display: block" href="/reader/{{ feed.id }}">{{ feed.title }} ({{feed.unread_count}})</a>
+                <a style="display: block" href="/reader/{{ feed.id }}">
+		    {% if feed.favico %}
+			<img src="/static/reader/favicon/{{feed.favico}}" height="16" width="16"/>
+		    {% else %}
+                        <img src="/static/reader/icons/feed.png" height="16" width="16"/>
+		    {% endif %}
+
+                 {{ feed.title }} ({{feed.unread_count}})</a>
              </span>
            </li>
            </div>
@@ -126,7 +137,8 @@ $(function() {
         </script>
 
 	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
-	 <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p> 
+ 	 <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a></p>
+         <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p>
          {% for form in formset.forms %}
             {% for hid in form.hidden_fields %}
                 {% if hid.value == article.id %}

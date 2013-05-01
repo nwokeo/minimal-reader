@@ -19,51 +19,46 @@ cur = db.cursor()
 cur.execute('SELECT * FROM reader_feed_base')
 
 for row in cur.fetchall() :
-    print 'reading ' + row[1], row[2]
+    print 'reading ' + row[1].encode('ascii', 'ignore'), row[2].encode('ascii', 'ignore')
     fp = feedparser.parse(row[2])
     for entry in fp['entries']:
-
 	try:
 	    cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)', 
 		(row[0], entry['link'], parser.parse(entry['updated']),  entry['title'], entry['content'][0]['value']))
 		#use fp['entries'][0]['content'][0]['value'] instead of summary for full text
+	    print 'all good'
         except MySQLdb.IntegrityError as e:
             print 'Article Already Exists', e
         except KeyError as e:
 	    e=y=str(e).replace("'","")
 	    try:
 	        if e=='link':
-		    for entry in fp['entries']:
-		        cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
+		    cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
 		        (row[0], '', parser.parse(entry['updated']),  entry['title'], entry['content'][0]['value']))
 		elif e=='updated':
 		    print 'attempted update fix'
-		    for entry in fp['entries']:
-		        cur.execute('insert into reader_article (feed_id, link, title, content) VALUES (%s, %s, %s, %s)',
+		    cur.execute('insert into reader_article (feed_id, link, title, content) VALUES (%s, %s, %s, %s)',
 		        (row[0], entry['link'], entry['title'], entry["summary"]))
-               elif e=='content': #if content is broked, attempt to insert summary
+                elif e=='content': #if content is broken, attempt to insert summary
                     print 'attempted content fix'
-                    for entry in fp['entries']:
-                        cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
+                    cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
                         (row[0], entry['link'], parser.parse(entry['updated']), entry['title'], entry['summary']))
 		elif e=='summary': #if summary's broken too, eff it
 		    print 'attempted summary fix'
-		    for entry in fp['entries']:
-			cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
+		    cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
 		        (row[0], entry['link'], parser.parse(entry['updated']),  entry['title'], ''))
 		elif e=='title':
-		    for entry in fp['entries']:
-		        cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
+		    cur.execute('insert into reader_article (feed_id, link, update_date, title, content) VALUES (%s, %s, %s, %s, %s)',
 		        (row[0], entry['link'], parser.parse(entry['updated']), entry['link'] , ['content'][0]['value']))
 		else:
 		    print '!!Key Error!!: ', e, entry
 	    except:
-		print "Unexpected error:", sys.exc_info()[0]
-            #print 'Error, written to DB:', e, entry
+	 	print "Unexpected error (inside loop):", sys.exc_info()[0]
+
 	#need to add this to each error section? use functions
         except ValueError as e:
 	    print 'Value Error', e, entry
  	except:
-	    print "Unexpected error:", sys.exc_info()[0]
+	    print "Unexpected error (outer loop):", sys.exc_info()[0]
 	
         cur.execute('commit')
