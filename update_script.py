@@ -28,7 +28,8 @@ for row in cur.fetchall() :
 		#use fp['entries'][0]['content'][0]['value'] instead of summary for full text
 	    print 'all good'
         except MySQLdb.IntegrityError as e:
-            print 'Article Already Exists', e
+            #print 'Article Already Exists', e
+	    pass
         except KeyError as e:
 	    e=y=str(e).replace("'","")
 	    try:
@@ -52,6 +53,9 @@ for row in cur.fetchall() :
 		        (row[0], entry['link'], parser.parse(entry['updated']), entry['link'] , ['content'][0]['value']))
 		else:
 		    print '!!Key Error!!: ', e, entry
+	    except MySQLdb.IntegrityError as e:
+                #print 'Article Already Exists', e
+                pass
 	    except:
 	 	print "Unexpected error (inside loop):", sys.exc_info()[0]
 

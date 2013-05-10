@@ -78,6 +78,22 @@ $(function() {
      <br/>
    <ul id="navtree_ul">
 
+<!-- add logic for specific feeds here -->
+{% if disp_feeds %}
+{% for feed in disp_feeds %}
+{% if feed.unread_count > 0 %} 
+<div><li>
+<span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
+     {% if feed.favico %}            
+       <img src="/static/reader/favicon/{{feed.favico}}" height="16" width="16"/>   
+     {% else %}                                                    
+        <img src="/static/reader/icons/feed.png" height="16" width="16"/>
+     {% endif %} 
+{{feed.title}} ({{feed.unread_count}})</a></span>
+</li></div>
+{% endif %}
+{% endfor %}
+{% else %}
     {% for label in feeds_labels %}
 	  
        <li> 
@@ -106,6 +122,7 @@ $(function() {
        
     {% endfor %}
     </ul>
+{% endif %}
    </div>
  </div>
 

@@ -30,7 +30,7 @@ class Feed_base(models.Model):
     add_date = models.DateTimeField('date added')
     description=models.CharField(max_length=255)
     homepage=models.CharField(max_length=255)
-    type =models.CharField(max_length=10)
+    #type =models.CharField(max_length=10)
     #favico=models.CharField(max_length=10)
     def __unicode__(self):
         return self.title
