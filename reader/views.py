@@ -13,17 +13,13 @@ from random import randrange
 
 #show starred. later: random, all feeds
 def index(request):
-    #articles = Article.objects.filter(read_later__exact='True')
-    #ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'), extra=0)
     articles = Article.objects.filter(read_later__exact='True')#.order_by('-update_date', '-add_date')    
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
     #feed__label__label=cat   
     feeds_labels =  Label.objects.all()
+    disp_feeds=''
     #order by most recent
-    #disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')[:10]
-    #order by fewest unread
-    disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('unread_count')[:10]
     return  render_to_response(
         'reader/magic.html',
         {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,},
@@ -36,7 +32,7 @@ def magic(request):
     amount=int(vars.get('amt',20))
     sortby=vars.get('sort','desc')
     cat=vars.get('cat','uncategorized')
-    #feed=vars.get('feed','all')
+    f=vars.get('f','all')
     if sortby=='rand': #random
 	articles = sortrandom(amount, sortby, cat)
     elif sortby=='desc': #descending
@@ -47,11 +43,20 @@ def magic(request):
         pass    
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
-    feeds_labels =  Label.objects.all()
+    if f=='all':
+        feeds_labels =  Label.objects.all()
+        disp_feeds=''
+    elif f=='unread':
+        disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('unread_count')#[:10]
+        feeds_labels=''
+    elif f=='new':
+	disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
+	feeds_labels=''
+
     #return HttpResponse(vars['s'])
     return  render_to_response(
         'reader/magic.html',
-        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,},
+        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,},
         context_instance = RequestContext(request),
     )
 
