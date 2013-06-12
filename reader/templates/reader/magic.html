@@ -78,10 +78,9 @@ $(function() {
      <br/>
    <ul id="navtree_ul">
 
-<!-- add logic for specific feeds here -->
-{% if disp_feeds %}
-{% for feed in disp_feeds %}
-{% if feed.unread_count > 0 %} 
+{% if disp_feeds %} <!-- view specific feeds -->
+  {% for feed in disp_feeds %}
+   {% if feed.unread_count > 0 %} 
 <div><li>
 <span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
      {% if feed.favico %}            
@@ -93,7 +92,7 @@ $(function() {
 </li></div>
 {% endif %}
 {% endfor %}
-{% else %}
+{% else %} <!-- view all feeds -->
     {% for label in feeds_labels %}
 	  
        <li> 
@@ -147,10 +146,6 @@ $(function() {
                var $checkbox = $(this).find("input[name*='unread']");
                $checkbox.attr('checked', !$checkbox.attr('checked'));
          }); 
-
-         $("#article_form").click(function () {
-             $(this).submit();
-         });
         </script>
 
 	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
