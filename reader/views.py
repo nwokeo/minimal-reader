@@ -13,7 +13,7 @@ from random import randrange
 
 #show starred. later: random, all feeds
 def index(request):
-    articles = Article.objects.filter(read_later__exact='True')#.order_by('-update_date', '-add_date')    
+    articles = Article.objects.filter(read_later__exact='True').order_by('-update_date', '-add_date')    
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
     #feed__label__label=cat   
@@ -72,10 +72,10 @@ def sortrandom(amount, sortby, cat):
 #show specific feed
 def detail(request, feed_id_pk):
     feed = Feed.objects.filter(id=feed_id_pk)[0]
-    articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', '-add_date')
+    articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[:20]
     #unread_count= Article.objects.filter(feed_id=feed_id_pk, unread=True).count()
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
-    formset = ArticleFormSet(queryset=Article.objects.filter(feed_id=feed_id_pk, unread=True))
+    formset = ArticleFormSet(queryset=articles)
     #feeds_labels = Label.objects.filter(feeds__unread_count__gt=0)   
     feeds_labels = Label.objects.all()
     return  render_to_response(
