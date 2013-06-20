@@ -71,7 +71,7 @@ $(function() {
 	</script>
 
 	  <div class='column last span-8 header-r'> <!-- 'column r' --> 
-	     <p class='header-r'><a id="select">mark all as read</a> | <a href='/reader'>reading list</a> | <a href='/admin'>admin</a></p>
+	     <p class='header-r'><a href="/reader/allread/{{feed.id}}/">mark all as read</a> | <a id="select">mark screen as read</a> | <a href='/reader'>reading list</a> | <a href='/admin'>admin</a></p>
 	  </div> 
   <!-- /div -->
 </div>
@@ -160,7 +160,7 @@ $(function() {
         </script>
 
 	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
- 	 <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a></p>
+ 	 <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a> (<a href="/reader/{{article.feed.id }}">{{article.feed.id }}</a>)</p>
          <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p>
          {% for form in formset.forms %}
             {% for hid in form.hidden_fields %}
@@ -173,7 +173,7 @@ $(function() {
          <br/><br/>
 	 {{article.content | safe }} 
    </div>
-<!--  endif -->	
+
         {% endfor %}
   </form>
   

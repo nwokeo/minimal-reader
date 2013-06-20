@@ -11,7 +11,7 @@ from random import randrange
 
 #monkeypatch to allow video embeds. thx http://www.rumproarious.com/
 
-#show starred. later: random, all feeds
+#show starred.
 def index(request):
     articles = Article.objects.filter(read_later__exact='True').order_by('-update_date', '-add_date')    
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
@@ -93,4 +93,8 @@ def update(request, feed_id_pk=''):
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     form = ArticleFormSet(request.POST, queryset=Article.objects.filter(id__in=l, unread=True))
     form.save()
+    return redirect(request.META['HTTP_REFERER'])
+
+def allread(request,feed_id_pk):
+    Article.objects.filter(feed_id=feed_id_pk).update(unread=0)
     return redirect(request.META['HTTP_REFERER'])
