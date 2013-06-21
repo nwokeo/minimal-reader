@@ -85,7 +85,7 @@ $(function() {
   <div id='nav'>
     <a class="feed nav_link" style="display: block" href='/admin'>admin</a>
     <a class="feed nav_link" style="display: block" href='/reader'>reading list</a>
-    <a class="feed nav_link" style="display: block" href="http://192.168.1.101:8000/reader/magic?amt=20&sort=rand">magic</a> 
+    <a class="feed nav_link" style="display: block" href="http://192.168.1.101:8000/reader/magic?p=1&sort=rand">magic</a> 
      <br/>
    <ul id="navtree_ul">
 
@@ -143,7 +143,8 @@ $(function() {
   {% for article in articles %}
 
   {% if forloop.first == True %}
-       <form id="article_form" action="/reader/update/{{article.feed.id}}/" method="POST">
+       <!--  <form id="article_form" action="/reader/update/{{article.feed.id}}/" method="POST"> -->
+	<form id="article_form" action="/reader/update/" method="POST">
         <!-- first! -->
   {% endif %}
 

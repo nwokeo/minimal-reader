@@ -13,7 +13,10 @@ from random import randrange
 
 #show starred.
 def index(request):
-    articles = Article.objects.filter(read_later__exact='True').order_by('-update_date', '-add_date')    
+    vars=request.GET
+    p=int(vars.get('p',1))
+    p=p*20
+    articles = Article.objects.filter(read_later__exact='True').order_by('-update_date', '-add_date')[p-20:p]
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
     #feed__label__label=cat   
@@ -26,23 +29,28 @@ def index(request):
         context_instance = RequestContext(request),
     )
 
+#configurable display
 def magic(request):
-    #feed_list=[]
     vars=request.GET
-    amount=int(vars.get('amt',20))
+    p=int(vars.get('p',20))
+    p=p*20
+
+    if vars.get('cat'):
+	cat_filter=vars.get('cat')
+    else:
+	cat_filter='.'
+
     sortby=vars.get('sort','desc')
-    cat=vars.get('cat','uncategorized')
-    f=vars.get('f','all')
     if sortby=='rand': #random
-	articles = sortrandom(amount, sortby, cat)
+	articles = sortrandom(20, cat_filter) #hard-code to 20 for now. was get.amount
     elif sortby=='desc': #descending
-        articles = Article.objects.filter(unread__exact='True', feed__label__label=cat).order_by('-update_date', 'add_date')[:amount]
+        articles = Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('-update_date', '-add_date')[p-20:p]
     elif sortby=='asc': #ascending
-        articles = Article.objects.filter(unread__exact='True', feed__label__label=cat).order_by('update_date', 'add_date')[:amount]
+        articles = Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('update_date', 'add_date')[p-20:p]
     else:  #default
         pass    
-    ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
-    formset = ArticleFormSet(queryset=articles)
+
+    f=vars.get('f','all')
     if f=='all':
         feeds_labels =  Label.objects.all()
         disp_feeds=''
@@ -53,30 +61,27 @@ def magic(request):
 	disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
 	feeds_labels=''
 
-    #return HttpResponse(vars['s'])
+    ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
+    formset = ArticleFormSet(queryset=articles)
+
     return  render_to_response(
         'reader/magic.html',
         {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,},
         context_instance = RequestContext(request),
     )
 
-def sortrandom(amount, sortby, cat):
-    feed_list=[]
-    high=Article.objects.filter(unread__exact='True', feed__label__label=cat).aggregate(Max('id'))['id__max']
-    low=Article.objects.filter(unread__exact='True', feed__label__label=cat).aggregate(Min('id'))['id__min']
-    for x in range(amount):
-        feed_list.append(randrange(low, high))
-    return Article.objects.filter(id__in=feed_list, unread__exact='True') #feed__label__label=cat
-    #random by category disabled for now
+def sortrandom(amount, cat_filter):
+    return Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('?')[:amount]
 
 #show specific feed
 def detail(request, feed_id_pk):
+    vars=request.GET
+    p=int(vars.get('p',1))
+    p=p*20
     feed = Feed.objects.filter(id=feed_id_pk)[0]
-    articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[:20]
-    #unread_count= Article.objects.filter(feed_id=feed_id_pk, unread=True).count()
+    articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[p-20:p]
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     formset = ArticleFormSet(queryset=articles)
-    #feeds_labels = Label.objects.filter(feeds__unread_count__gt=0)   
     feeds_labels = Label.objects.all()
     return  render_to_response(
         'reader/magic.html',
@@ -85,7 +90,7 @@ def detail(request, feed_id_pk):
     )
 
 #updates POST, no data returned
-def update(request, feed_id_pk=''):
+def update(request):
     l=[]
     for item in request.POST.items():
         if '-id' in item[0]:

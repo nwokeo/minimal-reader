@@ -11,7 +11,6 @@ urlpatterns = patterns('',
     
     #below enables app-specific URLs
     url(r'^$', include('reader.urls')),
-
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^reader/', include('reader.urls')), #duplicates / for now
