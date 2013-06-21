@@ -107,11 +107,12 @@ $(function() {
     {% for label in feeds_labels %}
 	  
        <li> <!-- jquery assigns this class=folder --> 
-	<span class="feed" style="display: block"> {{ label.label }} </span>
+	<span class="feed" style="display:block"><a href="magic?p=1&sort=rand&cat={{ label.label }}"><img src="../static/reader/icons/lightning.png"/></a> {{ label.label }} </span>
          <ul>
           {% for feed in label.feeds.all %}
 	   {% if feed.unread_count > 0 %}
           <div class='feed'>
+
            <li class="feed">
              <span>
                 <a style="display: block" href="/reader/{{ feed.id }}">
