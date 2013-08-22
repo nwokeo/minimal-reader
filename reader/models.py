@@ -12,7 +12,7 @@ class Feed(models.Model):
     homepage=models.CharField(max_length=255)
     type =models.CharField(max_length=10)
     unread_count=models.IntegerField()
-    favico=models.CharField(max_length=10)
+    favico=models.CharField(max_length=10) 
     
     def __unicode__(self):
         return self.title
@@ -72,3 +72,4 @@ class Label(models.Model):
 
     class Meta:
         ordering = ('label',)
+#class 

@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest 
-from reader.models import Feed, Article, Rating, Label
+from reader.models import Feed, Article, Rating, Label, Feed_base
 from django.template import Context, loader
 from reader.forms import ArticleForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -83,9 +83,10 @@ def detail(request, feed_id_pk):
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     formset = ArticleFormSet(queryset=articles)
     feeds_labels = Label.objects.all()
+    art_labels=Label.objects.filter(feeds__id__exact=feed_id_pk)
     return  render_to_response(
         'reader/magic.html',
-        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,},
+        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,'art_labels':art_labels,},
         context_instance = RequestContext(request),
     )
 
@@ -96,10 +97,36 @@ def update(request):
         if '-id' in item[0]:
             l.append(item[1])
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
-    form = ArticleFormSet(request.POST, queryset=Article.objects.filter(id__in=l, unread=True))
+    form = ArticleFormSet(request.POST, queryset=Article.objects.filter(id__in=l))#, unread=True))
     form.save()
     return redirect(request.META['HTTP_REFERER'])
 
 def allread(request,feed_id_pk):
     Article.objects.filter(feed_id=feed_id_pk).update(unread=0)
     return redirect(request.META['HTTP_REFERER'])
+
+def edit(request,feed_id_pk):
+    feed = Feed_base.objects.filter(id=feed_id_pk)[0]
+    feeds=Feed_base.objects.filter(id=feed_id_pk)
+    #return HttpResponse(feed)
+    FeedFormSet=modelformset_factory(Feed_base,extra=0)
+    formset = FeedFormSet(queryset=feeds)
+    
+
+    return  render_to_response(
+        'reader/edit.html',
+        {'feed':feed,'formset':formset,'feeds':feeds,},
+        context_instance = RequestContext(request),
+    )    
+    #articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[p-20:p]
+    #ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
+    #formset = ArticleFormSet(queryset=articles)
+    #feeds_labels = Label.objects.all()
+    #return  render_to_response(
+    #    'reader/magic.html',
+    #    {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,},
+    #    context_instance = RequestContext(request),
+    #)    
+ 
+def edit_update(request):
+    FeedFormSet=modelformset_factory(Feed_base, extra=0)

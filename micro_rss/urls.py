@@ -15,5 +15,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^reader/', include('reader.urls')), #duplicates / for now
     url(r'^detail/', include('reader.urls')), #duplicates / for now
-
+    #url(r'^edit/', include('reader.urls')),
 )

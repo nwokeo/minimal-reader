@@ -85,7 +85,7 @@ $(function() {
   <div id='nav'>
     <a class="feed nav_link" style="display: block" href='/admin'>admin</a>
     <a class="feed nav_link" style="display: block" href='/reader'>reading list</a>
-    <a class="feed nav_link" style="display: block" href="http://192.168.1.101:8000/reader/magic?p=1&sort=rand">magic</a> 
+    <a class="feed nav_link" style="display: block" href="/reader/magic?p=1&sort=rand">magic</a> 
      <br/>
    <ul id="navtree_ul">
 
@@ -107,7 +107,7 @@ $(function() {
     {% for label in feeds_labels %}
 	  
        <li> <!-- jquery assigns this class=folder --> 
-	<span class="feed" style="display:block"><a href="magic?p=1&sort=rand&cat={{ label.label }}"><img src="../static/reader/icons/lightning.png"/></a> {{ label.label }} </span>
+	<span class="feed" style="display:block"><a href="/reader/magic?p=1&sort=rand&cat={{ label.label }}"><img src="/static/reader/icons/lightning.png"/></a> {{ label.label }} </span>
          <ul>
           {% for feed in label.feeds.all %}
 	   {% if feed.unread_count > 0 %}
@@ -164,6 +164,9 @@ $(function() {
 	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
  	 <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a> (<a href="/reader/{{article.feed.id }}">{{article.feed.id }}</a>)</p>
          <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p>
+         <!--Tags: {% for label in art_labels %}|{{label}}{% endfor %}| -->
+<!-- there's got to be a bwtter way to do this -->
+         <p class='pub_date'>Tags: {% for label in feeds_labels %} {% for feed in label.feeds.all %} {% ifequal feed.id article.feed.id %}| <a href="/reader/magic?p=1&cat={{label}}">{{label}}</a> {% endifequal %} {%endfor%} {%endfor%}|</p>
          {% for form in formset.forms %}
             {% for hid in form.hidden_fields %}
                 {% if hid.value == article.id %}

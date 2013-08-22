@@ -9,7 +9,8 @@ config = ConfigParser.RawConfigParser()
 config.read('reader.cfg')
 
 #monkeypatch to allow video embeds. thx http://www.rumproarious.com/
-feedparser._HTMLSanitizer.acceptable_elements = feedparser._HTMLSanitizer.acceptable_elements + ['object', 'embed','iframe']
+s=set(['object', 'embed','iframe'])
+feedparser._HTMLSanitizer.acceptable_elements = feedparser._HTMLSanitizer.acceptable_elements | s
 
 db=MySQLdb.connect(host="localhost",user=config.get('Database', 'username'),passwd=config.get('Database', 'password'),db="micro_rss", charset='utf8')
 
