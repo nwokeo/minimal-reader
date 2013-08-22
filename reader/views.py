@@ -63,7 +63,7 @@ def magic(request):
 
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
-
+    
     return  render_to_response(
         'reader/magic.html',
         {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,},
@@ -83,10 +83,10 @@ def detail(request, feed_id_pk):
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     formset = ArticleFormSet(queryset=articles)
     feeds_labels = Label.objects.all()
-    art_labels=Label.objects.filter(feeds__id__exact=feed_id_pk)
+    #art_labels=Label.objects.filter(feeds__id__exact=feed_id_pk)
     return  render_to_response(
         'reader/magic.html',
-        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,'art_labels':art_labels,},
+        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,},
         context_instance = RequestContext(request),
     )
 
