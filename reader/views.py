@@ -66,7 +66,7 @@ def magic(request):
     
     return  render_to_response(
         'reader/magic.html',
-        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,},
+        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,'last_update':last_update(),},
         context_instance = RequestContext(request),
     )
 
@@ -83,7 +83,13 @@ def detail(request, feed_id_pk):
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     formset = ArticleFormSet(queryset=articles)
     feeds_labels = Label.objects.all()
-    #art_labels=Label.objects.filter(feeds__id__exact=feed_id_pk)
+    
+    #later: clean up via args
+    #args={}
+    #args['formset']=ArticleFormSet(queryset=articles)
+    #args['feeds_labels']=Label.objects.all()
+    #return  render_to_response('reader/magic.html',args,context_instance = RequestContext(request),)
+
     return  render_to_response(
         'reader/magic.html',
         {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,},
@@ -130,3 +136,6 @@ def edit(request,feed_id_pk):
  
 def edit_update(request):
     FeedFormSet=modelformset_factory(Feed_base, extra=0)
+
+def last_update():
+    return Article.objects.all().aggregate(Max('add_date'))

@@ -81,8 +81,10 @@ $(function() {
 
 
 <div id='body'>
+
  <div id='nav-cont'>
   <div id='nav'>
+    <p class='pub_date'>Last Refresh:<br /><br />{{last_update.add_date__max}}</p>
     <a class="feed nav_link" style="display: block" href='/admin'>admin</a>
     <a class="feed nav_link" style="display: block" href='/reader'>reading list</a>
     <a class="feed nav_link" style="display: block" href="/reader/magic?p=1&sort=rand">magic</a> 
@@ -164,9 +166,24 @@ $(function() {
 	 <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
  	 <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a> (<a href="/reader/{{article.feed.id }}">{{article.feed.id }}</a>)</p>
          <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p>
-         <!--Tags: {% for label in art_labels %}|{{label}}{% endfor %}| -->
-<!-- there's got to be a bwtter way to do this -->
-         <p class='pub_date'>Tags: {% for label in feeds_labels %} {% for feed in label.feeds.all %} {% ifequal feed.id article.feed.id %}| <a href="/reader/magic?p=1&cat={{label}}">{{label}}</a> {% endifequal %} {%endfor%} {%endfor%}|</p>
+         
+<!-- there's got to be a better way to do this -->
+         <p class='pub_date'>Tags:{% for label in feeds_labels %}{% for feed in label.feeds.all %}{% ifequal feed.id article.feed.id %}|<a href="/reader/magic?p=1&cat={{label}}">{{label}}</a>{% endifequal %}{%endfor%}{%endfor%}|
+
+<!-- todo: use js to pull in form from separate page since forms can't nest -->
+<!--
+<form name="myform" action="" method="POST">
+<input type='hidden' name='feed_id' value='{{article.feed.id}}'>
+<select name="label_id" id="" onchange="this.form.submit()">
+{% for label in feeds_labels %}
+<option value="{{label.id}}">{{label}}</option>
+{%endfor%}
+</select>
+</form>
+-->	
+
+	</p>
+
          {% for form in formset.forms %}
             {% for hid in form.hidden_fields %}
                 {% if hid.value == article.id %}
