@@ -1,7 +1,7 @@
 from django.contrib import admin
-from reader.models import Feed_base
+from reader.models import Feed
 
-admin.site.register(Feed_base)
+admin.site.register(Feed)
 
 #use fieldsets?
 

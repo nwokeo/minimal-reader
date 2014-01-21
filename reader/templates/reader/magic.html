@@ -85,7 +85,7 @@
 
             {% if disp_feeds %} <!-- view specific feeds -->
               {% for feed in disp_feeds %}
-               {% if feed.unread_count > 0 %}
+               {% if feed.unread_count > 0 %} <!-- move this logic to view to economize? -->
             <div><li>
             <span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
 <!--                 {% if feed.favico %}

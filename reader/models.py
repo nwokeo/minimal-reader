@@ -11,7 +11,6 @@ from django.utils import timezone
 #    class Meta:
 #        ordering = ('label',)
 
-#view to dispay feeds
 class Feed(models.Model):
     title = models.CharField(max_length=255)
     link = models.CharField(max_length=255)
@@ -19,28 +18,10 @@ class Feed(models.Model):
     description=models.CharField(max_length=255)
     homepage=models.CharField(max_length=255)
     type =models.CharField(max_length=10)
+    favico_url=models.CharField(max_length=100)
+    favico=models.CharField(max_length=10)
     unread_count=models.IntegerField()
-    favico=models.CharField(max_length=10) 
     #labels = models.ManyToManyField(Label)
-    
-    def __unicode__(self):
-        return self.title
-
-    def was_added_recently(self):
-        return self.add_date >= timezone.now() - datetime.timedelta(days=1)
-
-    class Meta:
-        ordering = ('title',)
-
-#view base table, just to add fields
-class Feed_base(models.Model):
-    title = models.CharField(max_length=255)
-    link = models.CharField(max_length=255)
-    add_date = models.DateTimeField('date added')
-    description=models.CharField(max_length=255)
-    homepage=models.CharField(max_length=255)
-    type =models.CharField(max_length=10)
-    #favico=models.CharField(max_length=10)
 
     def __unicode__(self):
         return self.title

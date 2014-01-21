@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
-from reader.models import Feed, Article, Rating, Label, Feed_base
+from reader.models import Feed, Article, Rating, Label
 from django.template import Context, loader
 from reader.forms import ArticleForm, LabelForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
@@ -37,14 +37,14 @@ def magic(request):
     p=p*20
 
     if vars.get('cat'):
-	      cat_filter=vars.get('cat')
+        cat_filter=vars.get('cat')
     else:
-	      cat_filter='.'
+        cat_filter='.'
 
     sortby=vars.get('sort','desc')
 
     if sortby=='rand': #random
-	    articles = sortrandom(20, cat_filter) #hard-code to 20 for now. was get.amount
+        articles = sortrandom(20, cat_filter) #hard-code to 20 for now. was get.amount
     elif sortby=='desc': #descending
         articles = Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('-update_date', '-add_date')[p-20:p]
     elif sortby=='asc': #ascending
@@ -60,8 +60,8 @@ def magic(request):
         disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('unread_count')#[:10]
         feeds_labels=''
     elif f=='new':
-	    disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
-	    feeds_labels=''
+        disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
+        # feeds_labels=''
 
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
