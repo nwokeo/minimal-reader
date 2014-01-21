@@ -1,13 +1,14 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest 
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from reader.models import Feed, Article, Rating, Label, Feed_base
 from django.template import Context, loader
-from reader.forms import ArticleForm
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from reader.forms import ArticleForm, LabelForm
+from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.forms.models import modelformset_factory
 from django.core.urlresolvers import reverse
 from django.db.models import Max, Min
 from random import randrange
+from django.db import IntegrityError
 
 #monkeypatch to allow video embeds. thx http://www.rumproarious.com/
 
@@ -19,7 +20,7 @@ def index(request):
     articles = Article.objects.filter(read_later__exact='True').order_by('-update_date', '-add_date')[p-20:p]
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
-    #feed__label__label=cat   
+    #feed__label__label=cat
     feeds_labels =  Label.objects.all()
     disp_feeds=''
     #order by most recent
@@ -36,19 +37,20 @@ def magic(request):
     p=p*20
 
     if vars.get('cat'):
-	cat_filter=vars.get('cat')
+	      cat_filter=vars.get('cat')
     else:
-	cat_filter='.'
+	      cat_filter='.'
 
     sortby=vars.get('sort','desc')
+
     if sortby=='rand': #random
-	articles = sortrandom(20, cat_filter) #hard-code to 20 for now. was get.amount
+	    articles = sortrandom(20, cat_filter) #hard-code to 20 for now. was get.amount
     elif sortby=='desc': #descending
         articles = Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('-update_date', '-add_date')[p-20:p]
     elif sortby=='asc': #ascending
         articles = Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('update_date', 'add_date')[p-20:p]
     else:  #default
-        pass    
+        pass
 
     f=vars.get('f','all')
     if f=='all':
@@ -58,12 +60,12 @@ def magic(request):
         disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('unread_count')#[:10]
         feeds_labels=''
     elif f=='new':
-	disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
-	feeds_labels=''
+	    disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
+	    feeds_labels=''
 
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
-    
+
     return  render_to_response(
         'reader/magic.html',
         {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,'last_update':last_update(),},
@@ -83,7 +85,7 @@ def detail(request, feed_id_pk):
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     formset = ArticleFormSet(queryset=articles)
     feeds_labels = Label.objects.all()
-    
+
     #later: clean up via args
     #args={}
     #args['formset']=ArticleFormSet(queryset=articles)
@@ -111,19 +113,19 @@ def allread(request,feed_id_pk):
     Article.objects.filter(feed_id=feed_id_pk).update(unread=0)
     return redirect(request.META['HTTP_REFERER'])
 
-def edit(request,feed_id_pk):
-    feed = Feed_base.objects.filter(id=feed_id_pk)[0]
-    feeds=Feed_base.objects.filter(id=feed_id_pk)
+#def edit(request,feed_id_pk):
+#    feed = Feed_base.objects.filter(id=feed_id_pk)[0]
+#    feeds=Feed_base.objects.filter(id=feed_id_pk)
     #return HttpResponse(feed)
-    FeedFormSet=modelformset_factory(Feed_base,extra=0)
-    formset = FeedFormSet(queryset=feeds)
-    
+#    FeedFormSet=modelformset_factory(Feed_base,extra=0)
+#    formset = FeedFormSet(queryset=feeds)
 
-    return  render_to_response(
-        'reader/edit.html',
-        {'feed':feed,'formset':formset,'feeds':feeds,},
-        context_instance = RequestContext(request),
-    )    
+
+#    return  render_to_response(
+#        'reader/edit.html',
+#        {'feed':feed,'formset':formset,'feeds':feeds,},
+#        context_instance = RequestContext(request),
+#    )
     #articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[p-20:p]
     #ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
     #formset = ArticleFormSet(queryset=articles)
@@ -132,10 +134,65 @@ def edit(request,feed_id_pk):
     #    'reader/magic.html',
     #    {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'feed':feed,},
     #    context_instance = RequestContext(request),
-    #)    
- 
-def edit_update(request):
-    FeedFormSet=modelformset_factory(Feed_base, extra=0)
+    #)
+
+#def edit_update(request):
+#    FeedFormSet=modelformset_factory(Feed_base, extra=0)
 
 def last_update():
     return Article.objects.all().aggregate(Max('add_date'))
+
+
+def edit_label2(request):
+    vars=request.GET
+    f=vars.get('feed','-1')
+    #p=int(vars.get('p',1))
+    #p=p*20
+    feed = Feed.objects.filter(id=f)[0]
+    labels_feeds = Label.objects.filter(feeds__id__exact=f)
+    #articles = Article.objects.filter(feed_id=feed_id_pk, unread=True).order_by('-update_date', 'add_date')[p-20:p]
+    #ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later', 'id'))
+    #formset = ArticleFormSet(queryset=articles)
+    labels = Label.objects.all()
+
+    return  render_to_response(
+        'reader/edit_label.html',
+        {
+         #'formset':formset,
+         'labels':labels,
+         'labels_feeds':labels_feeds,
+         #'articles':articles,
+         'feed':feed,
+        },
+        context_instance = RequestContext(request),
+    )
+
+def edit_label(request):
+    vars=request.GET
+    #f=vars.get('feed','-1')
+    f=633
+    feed = Feed.objects.filter(id=f)[0]
+    #labels_feeds = Label.objects.filter(feeds__id__exact=f)
+    all_labels = Label.objects.all()
+    feed_labels = feed.label_set.all()
+
+    if request.method == 'POST': # If the form has been submitted...
+        form = LabelForm(request.POST) #, queryset=Label.objects.filter(id=f))
+        # A form bound to the POST data
+        if form.is_valid():
+            form.save()
+            #update=form.save(commit=False)
+            print update.id
+            return HttpResponseRedirect('edit_label')
+	    #except IntegrityError: #labels must be unique
+            #    print "integrity error"
+            #    return HttpResponseRedirect('edit_label')
+    else:
+        form = LabelForm()
+
+    return render(request, 'reader/edit_label.html', {
+        'form': form,
+        'feed':feed,
+        'all_labels':all_labels,
+        'feed_labels':feed_labels,
+    })

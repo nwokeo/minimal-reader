@@ -7,5 +7,3 @@ reader.cfg
 test_*
 reader/static/reader/favicon*
 *.save
-.idea/*
-archive/*

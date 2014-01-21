@@ -3,6 +3,14 @@ from django.forms import ModelForm
 import datetime
 from django.utils import timezone
 
+#class Label(models.Model):
+#    label = models.CharField(max_length=25)
+    #feeds = models.ManyToManyField(Feed)
+#    def __unicode__(self):
+#        return self.label
+#    class Meta:
+#        ordering = ('label',)
+
 #view to dispay feeds
 class Feed(models.Model):
     title = models.CharField(max_length=255)
@@ -13,6 +21,7 @@ class Feed(models.Model):
     type =models.CharField(max_length=10)
     unread_count=models.IntegerField()
     favico=models.CharField(max_length=10) 
+    #labels = models.ManyToManyField(Label)
     
     def __unicode__(self):
         return self.title
@@ -32,6 +41,7 @@ class Feed_base(models.Model):
     homepage=models.CharField(max_length=255)
     type =models.CharField(max_length=10)
     #favico=models.CharField(max_length=10)
+
     def __unicode__(self):
         return self.title
 
@@ -72,4 +82,3 @@ class Label(models.Model):
 
     class Meta:
         ordering = ('label',)
-#class 

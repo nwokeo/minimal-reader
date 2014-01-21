@@ -46,21 +46,27 @@
 
 
  <div id='articles'>
+  <form id="article_form" action="/reader/edit_label" method="POST">
+    {% csrf_token %}
 
-{{feed.label.id}}
-ok
+    <p>
+      <input type="hidden" id="id_feeds" name="feeds" value="{{feed.id}}"/>
+    </p>
 
-        <form id="article_form" action="/reader/edit/update/" method="POST">
-         {% csrf_token %}
-         {{ formset.management_form }}
-         {% for form in formset.forms %}
-                {{ form }}
-	<br/>
-         {% endfor %}
-         <input type="submit" value="submit">
+    {{feed.title}}
+    {% for label in feed_labels %}
+      <li>{{label}}</li> 
+    {% endfor %}
+
+    <p>
+      <select name="label" id="id_label" onchange="this.form.submit()">
+        {% for label in all_labels %}
+          <option value="{{label}}">{{label}}</option>
+        {%endfor%}
+      </select>
+    </p>
   </form>
 
-  
 </div>
 </div>
 

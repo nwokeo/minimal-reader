@@ -19,4 +19,5 @@ class RatingForm(ModelForm):
 class LabelForm(ModelForm):
     class Meta:
         model = Label
+        fields = ('id',)
 
