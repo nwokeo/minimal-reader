@@ -1,9 +1,0 @@
-*.log
-*.pot
-*.pyc
-local_settings.py
-subscriptions.xml
-reader.cfg
-test_*
-reader/static/reader/favicon*
-*.save
