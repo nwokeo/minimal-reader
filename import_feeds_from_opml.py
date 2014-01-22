@@ -48,34 +48,36 @@ for item in o:
         existing_feed.append(y[0])
 
     if len(item) > 0:
-  	print item.title
-	for feed in item: #link is unique, so dont need to enforce.
-	    print '\t ADDING', feed.title, '(label: ', item.title, ')'
-	    try:
-            	cur.execute('insert into reader_feed_base (title, link, description, homepage, type) VALUES (%s, %s, %s, %s, %s)',
-                    (feed.title, feed.xmlUrl,feed.text, feed.htmlUrl, feed.type))
-            	cur.execute('commit')
-	    	print '\t added to feeds'
-	    except MySQLdb.IntegrityError, e:
-		print 'FEED EXISTS in reader_feed_base-', feed.title, e
-            #associate label
-	    try:
-	        cur.execute('insert into reader_label_feeds (label_id, feed_id) select l.id, f.id from reader_label l, reader_feed_base f where f.link="' + feed.xmlUrl + '" and l.label="' + item.title + '"')
+        print item.title
+#refactor TBD: dedent this whole for loop?
+        for feed in item:
+            #link is unique, so dont need to enforce.
+            print '\t ADDING', feed.title, '(label: ', item.title, ')'
+            try:
+                cur.execute('insert into reader_feed_base (title, link, description, homepage, type) VALUES (%s, %s, %s, %s, %s)',
+                        (feed.title, feed.xmlUrl,feed.text, feed.htmlUrl, feed.type))
                 cur.execute('commit')
-	        print '\t associated with label'
+                print '\t added to feeds'
             except MySQLdb.IntegrityError, e:
-                print 'Reader/Label Relationship EXISTS-', feed.title, item.title, e
+                print 'FEED EXISTS in reader_feed_base-', feed.title, e
+                #associate label
+                try:
+                    cur.execute('insert into reader_label_feeds (label_id, feed_id) select l.id, f.id from reader_label l, reader_feed_base f where f.link="' + feed.xmlUrl + '" and l.label="' + item.title + '"')
+                    cur.execute('commit')
+                    print '\t associated with label'
+                except MySQLdb.IntegrityError, e:
+                    print 'Reader/Label Relationship EXISTS-', feed.title, item.title, e
+    #uncat - add to db, associate label
     else:
-        #uncat - add to db, associate label
-	if item.xmlUrl in existing_feed:
-	    print 'Uncategorized Feed EXISTS- ', item.title, item.xmlUrl
+        if item.xmlUrl in existing_feed:
+            print 'Uncategorized Feed EXISTS- ', item.title, item.xmlUrl
         else:
             print 'ADDED- ',item.title
- 	    #add uncat feeds
-	    cur.execute('insert into reader_feed_base (title, link, description, homepage, type) VALUES (%s, %s, %s, %s, %s)', 
-		(item.title, item.xmlUrl,item.text, item.htmlUrl, item.type))
-	    cur.execute('commit')
-	    #associate label
+            #add uncat feeds
+            cur.execute('insert into reader_feed_base (title, link, description, homepage, type) VALUES (%s, %s, %s, %s, %s)',
+                        (item.title, item.xmlUrl,item.text, item.htmlUrl, item.type))
+            cur.execute('commit')
+            #associate label
             cur.execute('insert into reader_label_feeds (label_id, feed_id) select l.id, f.id from reader_label l, reader_feed_base f where f.link="' + item.xmlUrl + '" and l.label="uncategorized"')
             cur.execute('commit')
 
