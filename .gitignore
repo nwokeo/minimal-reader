@@ -9,3 +9,5 @@ reader/static/reader/favicon*
 *.save
 .idea/*
 archive/*
+dbg/
+speedtracer/
