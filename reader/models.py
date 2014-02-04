@@ -51,6 +51,7 @@ class Article(models.Model):
 class Rating(models.Model):
     article = models.ForeignKey(Article) #need to enforce unique=true?
     rating = models.CharField(max_length=1)
+
     def __unicode__(self):
         return (self.rating)
 
@@ -58,6 +59,7 @@ class Rating(models.Model):
 class Label(models.Model):
     label = models.CharField(max_length=25)
     feeds = models.ManyToManyField(Feed)
+
     def __unicode__(self):
         return self.label
 

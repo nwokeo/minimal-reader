@@ -3,6 +3,8 @@
 {% load staticfiles %}
   <head>
     <title>Reader 2.0</title>
+    <link rel="icon" type="image/x-icon" href="/static/reader/icons/feed.png" height="16" width="16">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/reader/icons/feed.png" height="16" width="16">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- reader -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
@@ -63,6 +65,7 @@
                       <a class="btn btn-default" href="/reader" role="button">reading list</a>
                     </div>
 
+                    <!-- TODO: dynamically change from mark page to mark all as read when viewing feed view -->
                     <div class="btn-group">
                       <a class="btn btn-default" href="/reader/allread/{{feed.id}}/" role="button">mark all as read</a>
                       <a class="btn btn-default" id="select" role="button">mark screen as read</a>
@@ -71,7 +74,17 @@
                     <div class="btn-group">
                        <a class="btn btn-default" href="/admin" role="button">admin</a>
                     </div>
-<!--                <div><span class='pub_date'>Last Refresh:{{last_update.add_date__max}}</span></div> -->
+<!--                <i class="fa fa-search"></i> -->
+
+                    <div class="btn-group">
+                      <form id="article_form" action="/reader/search/" method="POST">
+                        <div class="input-group">
+                          {% csrf_token %}
+                           <input type="text" class="form-control" placeholder="search" name="search">
+                         </div>
+                      </form>
+                    </div>
+
                 </div>
 
             </div>
@@ -84,20 +97,22 @@
                  <br/>
 
             {% if disp_feeds %} <!-- view specific feeds -->
+
               {% for feed in disp_feeds %}
                {% if feed.unread_count > 0 %} <!-- move this logic to view to economize? -->
-            <div><li>
-            <span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
-<!--                 {% if feed.favico %}
-                   <img src="/static/reader/favicon/{{feed.favico}}" height="16" width="16"/>
-                 {% else %}
-                    <img src="/static/reader/icons/feed.png" height="16" width="16"/>
-                 {% endif %}
--->
-            {{feed.title}} ({{feed.unread_count}})</a></span>
-            </li></div>
-            {% endif %}
-            {% endfor %}
+                <div><li>
+                <span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
+    <!--                 {% if feed.favico %}
+                       <img src="/static/reader/favicon/{{feed.favico}}" height="16" width="16"/>
+                     {% else %}
+                        <img src="/static/reader/icons/feed.png" height="16" width="16"/>
+                     {% endif %}
+    -->
+                {{feed.title}} ({{feed.unread_count}})</a></span>
+                </li></div>
+               {% endif %}
+              {% endfor %}
+
             {% else %} <!-- view all feeds -->
                 {% for label in feeds_labels %}
 

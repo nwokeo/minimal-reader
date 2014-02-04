@@ -52,6 +52,8 @@ def magic(request):
     else:  #default
         pass
 
+#feed filter works. implement later? if implemented, remove feeds_labels,disp_feeds statement below
+    '''
     f=vars.get('f','all')
     if f=='all':
         feeds_labels =  Label.objects.all()
@@ -62,18 +64,27 @@ def magic(request):
     elif f=='new':
         disp_feeds=Feed.objects.filter(unread_count__gt=0).order_by('-add_date')#[:10]
         # feeds_labels=''
+    '''
+    feeds_labels =  Label.objects.all()
+    disp_feeds=''
 
     ArticleFormSet=modelformset_factory(Article, fields=('unread', 'read_later'))
     formset = ArticleFormSet(queryset=articles)
 
     return  render_to_response(
         'reader/magic.html',
-        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,'last_update':last_update(),},
+        {'formset':formset, 'feeds_labels':feeds_labels, 'articles':articles,'disp_feeds':disp_feeds,}, #'last_update':last_update(),
         context_instance = RequestContext(request),
     )
 
 def sortrandom(amount, cat_filter):
+    #random by feed functionality is slow
     return Article.objects.filter(unread__exact='True', feed__label__label__regex=cat_filter).order_by('?')[:amount]
+
+    #sort asc test
+    #return Article.objects.filter(unread__exact='True').order_by('id')[:amount]
+
+    #new approach: from 1 to amount, return random int (random.randint(1, <max ID>)). for each, make sure it meets unread, category filter.
 
 #show specific feed
 def detail(request, feed_id_pk):
@@ -109,11 +120,28 @@ def update(request):
     form.save()
     return redirect(request.META['HTTP_REFERER'])
 
+def search(request):
+    articles = Article.objects.raw('SELECT id,link,update_date,add_date,title,content,unread,read_later FROM reader_article WHERE MATCH (title,content) AGAINST ('+"'"+request.POST.items()[1][1]+"')")[:40]
+
+    #return  HttpResponse(request.POST.items()[1][1])
+    #return  HttpResponse('SELECT * FROM reader_article WHERE MATCH (title,content) AGAINST ('+"'"+request.POST.items()[1][1]+"')")
+    #return HttpResponse(articles[0][1])
+
+    return  render_to_response(
+        'reader/search.html',
+        {'articles':articles,},
+        context_instance = RequestContext(request),
+    )
+
+#mark all as read helper
 def allread(request,feed_id_pk):
     Article.objects.filter(feed_id=feed_id_pk).update(unread=0)
     return redirect(request.META['HTTP_REFERER'])
 
 
 
+#move to stats page
+'''
 def last_update():
     return Article.objects.all().aggregate(Max('add_date'))
+'''
