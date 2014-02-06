@@ -16,4 +16,7 @@ for row in cur.fetchall():
 '''
 TODO:
 -define article update interval
+-rss/atom validation API?
+-locate dead links
+-
 '''

@@ -156,13 +156,10 @@
                   {% for article in articles %}
 
                   {% if forloop.first == True %}
-                       <!--  <form id="article_form" action="/reader/update/{{article.feed.id}}/" method="POST"> -->
                     <form id="article_form" action="/reader/update/" method="POST">
-                        <!-- first! -->
                   {% endif %}
 
                 <!-- only unread articles are coming from view -->
-                <!-- if article.unread == True -->
                   {% csrf_token %}
                   {{ formset.management_form }}
                    <div id={{article.id}} class='article-detail'>
@@ -183,7 +180,7 @@
                      {% for form in formset.forms %}
                         {% for hid in form.hidden_fields %}
                             {% if hid.value == article.id %}
-                            {{ form }}
+                              {{ form }}
                             {% endif %}
                         {% endfor %}
                      {% endfor %}

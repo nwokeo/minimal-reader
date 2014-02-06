@@ -14,13 +14,13 @@ from django.utils import timezone
 class Feed(models.Model):
     title = models.CharField(max_length=255)
     link = models.CharField(max_length=255)
-    add_date = models.DateTimeField('date added')
+    add_date = models.DateTimeField()
     description=models.CharField(max_length=255)
     homepage=models.CharField(max_length=255)
-    type =models.CharField(max_length=10)
-    favico_url=models.CharField(max_length=100)
-    favico=models.CharField(max_length=10)
-    unread_count=models.IntegerField()
+    type =models.CharField(max_length=10,blank=True)
+    favico_url=models.CharField(max_length=100,blank=True)
+    favico=models.CharField(max_length=10,blank=True)
+    unread_count=models.IntegerField(blank=True)
     #labels = models.ManyToManyField(Label)
 
     def __unicode__(self):
@@ -34,11 +34,11 @@ class Feed(models.Model):
 
 class Article(models.Model):
     feed = models.ForeignKey(Feed)
-    link = models.TextField(help_text='text field')
-    update_date = models.DateTimeField('date updated')
-    add_date = models.DateTimeField('date added')
-    title = models.TextField(help_text='text field')
-    content = models.TextField(help_text='text field')
+    link = models.TextField()
+    update_date = models.DateTimeField()
+    add_date = models.DateTimeField()
+    title = models.TextField()
+    content = models.TextField()
     unread = models.BooleanField()
     read_later = models.BooleanField()    
 
