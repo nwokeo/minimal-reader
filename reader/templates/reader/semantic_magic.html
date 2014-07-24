@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+{% load staticfiles %}
+  <head>
+    <title>Reader 2.0</title>
+    <link rel="icon" type="image/x-icon" href="/static/reader/icons/feed.png" height="16" width="16">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/reader/icons/feed.png" height="16" width="16">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- jq -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+    <!-- reader -->
+	<link rel="stylesheet" type="text/css" href="{% static 'reader/style.css' %}" />
+
+    <!-- Bootstrap -->
+    <!-- <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"> -->
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <!-- semantic -->
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/css/semantic.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/javascript/semantic.js" type="text/javascript"></script>
+  </head>
+
+  <body>
+
+    <script>
+    // Execute this after the site is loaded.
+    $(function() {
+        // Find list items representing folders and
+        // style them accordingly.  Also, turn them
+        // into links that can expand/collapse the
+        // tree leaf.
+
+    //select when ul is child of li
+        $('li > ul').each(function(i) {
+            // Find this list's parent list item.
+            var parent_li = $(this).parent('li');
+
+            // Style the list item as folder.
+            parent_li.addClass('folder');
+
+            // Temporarily remove the list from the
+            // parent list item, wrap the remaining
+            // text in an anchor, then reattach it.
+            var sub_ul = $(this).remove();
+            parent_li.wrapInner('<a/>').find('a').click(function() {
+                // Make the anchor toggle the leaf display.
+                sub_ul.toggle();
+            });
+            parent_li.append(sub_ul);
+        });
+
+        // Hide all lists except the outermost.
+        $('ul ul').hide();
+    });
+    </script>
+
+    <script>
+    $(document).ready(function(){
+        $("#select").click(function() {
+            var checkBoxes = $("input[name*='unread']");
+            checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+        });
+    });
+    </script>
+
+    <div class="ui grid">
+        <div class="one column row">
+            <div class="sixteen wide column">
+                <h1 class="ui inverted black block header">Reader</h1>
+
+                <div class="ui small form segment">
+                    <div class="inline fields">
+                        <div class="field">
+                            <div class="blue small ui buttons">
+                                <a class="ui button" href="/reader/magic?p=1&sort=rand" role="button">magic</a>
+                                <a class="ui button" href="/reader" role="button">reading list</a>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <!-- TODO: dynamically change from mark page to mark all as read when viewing feed view -->
+                            <div class="blue small ui buttons">
+                              <a class="ui button" href="/reader/allread/{{feed.id}}/" role="button">mark all as read</a>
+                              <a class="ui button" id="select">mark screen as read</a>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="blue small ui buttons">
+                               <a class="ui button" href="/admin" role="button">admin</a>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <form id="article_form" action="/reader/search?p=1" method="GET">
+                                <div class="ui left labeled mini icon input">
+                                  {% csrf_token %}
+                                  <input type="text" class="form-control" placeholder="search" name="q"><i class="search icon"></i>
+                                  <input type="hidden" name="p" value="1">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+             </div>
+        </div>
+
+        <div class="two column row">
+            <!-- navigation -->
+            <div class="two wide column">
+                <div class="ui left floated segment">
+                     <ul id="navtree_ul">
+                    {% if disp_feeds %} <!-- view specific feeds -->
+
+                      {% for feed in disp_feeds %}
+                       {% if feed.unread_count > 0 %} <!-- move this logic to view to economize? -->
+                        <div><li>
+                        <span><a style="display: block" class="feed" href="/reader/{{ feed.id }}">
+                        {{feed.title}} ({{feed.unread_count}})</a></span>
+                        </li></div>
+                       {% endif %}
+                      {% endfor %}
+
+                    {% else %} <!-- view all feeds -->
+                        {% for label in feeds_labels %}
+
+                           <li> <!-- jquery assigns this class=folder -->
+                            <span class="feed" style="display:block">
+                                {{ label.label }}
+                                <a href="/reader/magic?p=1&sort=rand&cat={{ label.label }}"> <i class="fa fa-random"></i> </a>
+                            </span>
+                             <ul>
+                              {% for feed in label.feeds.all %}
+                           {% if feed.unread_count > 0 %}
+                              <div class='feed'>
+
+                               <li class="feed">
+                                 <span>
+                                    <a style="display: block" href="/reader/{{ feed.id }}">
+                                     {{ feed.title }} ({{feed.unread_count}})</a>
+                                 </span>
+                               </li>
+                               </div>
+                           {% endif %}
+                              {% endfor %}
+                             </ul>
+                        </li>
+
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- articles -->
+            <div class="ten wide column">
+                {% if articles %}
+                  {% for article in articles %}
+
+                  {% if forloop.first == True %}
+                    <form id="article_form" action="/reader/update/" method="POST">
+                  {% endif %}
+
+                <!-- only unread articles are coming from view -->
+                  {% csrf_token %}
+                  {{ formset.management_form }}
+                   <div id={{article.id}} class='article-detail'>
+                        <script>
+                        $('#{{article.id}}').click(function(){
+                               var $checkbox = $(this).find("input[name*='unread']");
+                               $checkbox.attr('checked', !$checkbox.attr('checked'));
+                         });
+                        </script>
+
+                     <h3><a href="{{ article.link }}" target="_blank">{{ article.title }}</a></h3>
+                     <p class='pub_date'>From: <a href='{{article.feed.homepage}}'>{{article.feed.title}}</a> (<a href="/reader/{{article.feed.id }}">{{article.feed.id }}</a>)</p>
+                     <p class='pub_date'>Posted: {{ article.update_date }} || Retrieved: {{article.add_date}}</p>
+                     <p class='pub_date'>Tags:{% for label in feeds_labels %}{% for feed in label.feeds.all %}{% ifequal feed.id article.feed.id %}
+                        <a class="ui small black label" href="/reader/magic?p=1&cat={{label}}">{{label}}<i class="delete icon"></i></a>{% endifequal %}{%endfor%}{%endfor%}
+                     </p>
+
+                     {% for form in formset.forms %}
+                        {% for hid in form.hidden_fields %}
+                            {% if hid.value == article.id %}
+                              {{ form }}
+                            {% endif %}
+                        {% endfor %}
+                     {% endfor %}
+                      <div>
+                        <input type="submit" value="submit" class="ui green tiny button">
+                      </div>
+                     <br/><br/>
+                 {{article.content | safe }}
+               </div>
+
+                    {% endfor %}
+              </form>
+
+              <!-- <a href='/reader/magic'>more</a> -->
+
+              {% else %}
+                <h3>No unread articles.</h3>
+              {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+  </body>
+</html>

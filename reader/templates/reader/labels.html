@@ -95,30 +95,16 @@
 
             <div class="col-md-12">
 
-                {% if articles %}
                     <table class="table table-hover">
-                    {% for article in articles %}
+                    {% for feed in feeds %}
                             <tr>
-                                <td><button type="button" class="btn btn-danger" data-toggle="collapse" data-target="#{{article.id}}"> </button></td>
-                                <td class="search_result">
-                                  {% if article.unread %} <b> {% endif %}
-                                  <a href="{{ article.link }}" target="_blank">{{ article.title }}</a>
-                                  {% if article.unread %} </b> {% endif %}
-                                </td>
-                                <td class="search_result"><a href="/reader/{{article.feed.id }}">{{article.feed.title}}</a></td>
-                                <td class="search_result">{{article.add_date}}</td>
+                                <td>{{feed.title}}</td>
+                                <td class="search_result"> {% for label in feed.label_set.all %}
+                                    <span class="badge"><a href="http://192.168.1.101:8000/reader/magic?p=1&sort=desc&cat={{label}}">{{label}}</a></span> {% endfor %}</td>
                             </tr>
-                        <!-- todo: add some padding to div when expanded -->
-                        <tr><td class="search_result_content" style="padding:0px" colspan="4">
-                            <div id={{article.id}} class="collapse">{{article.content | safe }}</div>
-                        </td></tr>
-
-
                     {% endfor %}
-                        </table>
-              {% else %}
-                <h3>No results.</h3>
-              {% endif %}
+                    </table>
+
             </div>
 
 

@@ -12,5 +12,6 @@ urlpatterns = patterns('', #ex: /
     #url(r'^edit/(?P<feed_id_pk>\d+)/$', views.edit, name='edit'), #/reader/edit/[feed_id]
     #url(r'^edit/update/$', views.edit_update, name='edit_update'), #/reader/edit/update/[feed_id]
     #url(r'^edit_label$', views.edit_label, name='edit_label'),
-    url(r'^search/$', views.search, name='search'),
+    url(r'^search$', views.search, name='search'),
+    url(r'^labels$', views.labels, name='labels'),
 )
